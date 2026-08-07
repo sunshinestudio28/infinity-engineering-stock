@@ -1,0 +1,37 @@
+rules_version = '2';
+
+// Firebase Storage security rules for Infinity Engineering Stock
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Product photos / files: any signed-in user may view; only signed-in users may upload.
+    // Allows images and common document types (e.g. invoices, specs) up to 5MB.
+    function isAllowedType() {
+      return request.resource.contentType.matches('image/.*')
+        || request.resource.contentType.matches('application/pdf')
+        || request.resource.contentType.matches('application/msword')
+        || request.resource.contentType.matches('application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+        || request.resource.contentType.matches('application/vnd.ms-excel')
+        || request.resource.contentType.matches('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        || request.resource.contentType.matches('text/plain')
+        || request.resource.contentType.matches('text/csv');
+    }
+
+    match /product-photos/{fileName} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn()
+        && request.resource.size < 5 * 1024 * 1024  // max 5MB
+        && isAllowedType();
+      allow delete: if isSignedIn();
+    }
+
+    // Deny everything else.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
