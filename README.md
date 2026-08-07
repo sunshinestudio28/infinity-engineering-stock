@@ -106,3 +106,12 @@ npm run build
 - Firebase (Auth, Firestore, Storage)
 - xlsx for Excel export
 - Vite
+
+
+## Performance update
+- Stock records are saved to Firestore before photo/file upload, so the form closes quickly.
+- Photo upload continues in the background and updates the same stock entry when complete.
+- Large images are compressed before upload.
+- Camera captures use a smaller JPEG to reduce mobile upload time.
+- Cancel is disabled while the stock write is in progress to avoid interrupted UI state.
+- Photo preview uses a blob URL instead of converting the whole image to base64.
