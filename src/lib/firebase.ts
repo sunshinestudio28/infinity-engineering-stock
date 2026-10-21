@@ -8,20 +8,24 @@ import {
 import { getFirestore, type Firestore } from 'firebase/firestore';
 import { getStorage, type FirebaseStorage } from 'firebase/storage';
 
+// Public web configuration for the NEW Firebase project.
+// Secure the data with Firebase Authentication and Firestore/Storage rules.
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: 'AIzaSyDkfyrRCYkQyjBH6bE8U83tTeYWUVK2Okg',
+  authDomain: 'infinity-engineering-stock-new.firebaseapp.com',
+  projectId: 'infinity-engineering-stock-new',
+  storageBucket: 'infinity-engineering-stock-new.firebasestorage.app',
+  messagingSenderId: '586642778865',
+  appId: '1:586642778865:web:44f13f14eed6df07a3d750',
+  measurementId: 'G-SD8HH2S1NK',
 };
 
 function hasValidConfig(): boolean {
   return Boolean(
     firebaseConfig.apiKey &&
       firebaseConfig.authDomain &&
-      firebaseConfig.projectId
+      firebaseConfig.projectId &&
+      firebaseConfig.appId
   );
 }
 
@@ -32,13 +36,13 @@ let storage: FirebaseStorage | null = null;
 let initialized = false;
 
 export function initFirebase(): void {
-  if (initialized) return;
-  if (!hasValidConfig()) {
-    return;
-  }
+  if (initialized || !hasValidConfig()) return;
+
   app = initializeApp(firebaseConfig);
   auth = getAuth(app);
-  setPersistence(auth, browserLocalPersistence).catch(() => {});
+  setPersistence(auth, browserLocalPersistence).catch((error) => {
+    console.error('Could not set Firebase auth persistence:', error);
+  });
   db = getFirestore(app);
   storage = getStorage(app);
   initialized = true;
